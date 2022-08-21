@@ -1,0 +1,20 @@
+---
+- name: Configure Repository
+  hosts: webservers
+  tasks:
+    - name: Add repository
+      yum_repository:
+        name: yum-internal-repository-example
+        description: Example Inc. Internal YUM repo
+        file: example
+        baseurl: http://materials.example.com/yum/repository/
+        gpgcheck: yes
+    - name: Install RPM Key
+      rpm_key:
+        key: http://materials.example.com/yum/repository/RPM-GPG-KEY-example
+        state: present
+    - name: Install motd package
+      yum:
+        name: example-motd
+        state: present
+

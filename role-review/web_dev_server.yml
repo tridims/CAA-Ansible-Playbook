@@ -1,0 +1,22 @@
+---
+- name: Configure Dev Web Server
+  hosts: dev_webserver
+  force_handlers: yes
+  roles:
+    - apache.developer_configs
+  pre_tasks:
+    - name: Check SELinux
+      block:
+        - include_role:
+            name: rhel-system-roles.selinux
+      rescue:
+        - name: General failure
+          fail:
+            msg: "SELinux role failed."
+          when: not selinux_reboot_required
+        - name: Restart managed hosts
+          reboot:
+            msg: "Rebooting system"
+        - name: Reapply SeLinux rolue
+          include_role:
+            name: rhel-system-roles.selinux

@@ -1,0 +1,15 @@
+---
+- name: Create users
+  hosts: webservers
+  vars_files:
+    - vars/users_vars.yml
+  tasks:
+    - name: Add group
+      group:
+        name: webadmin
+        state: present
+    - name: Create users
+      user:
+        name: "{{ item.username }}"
+        groups: "{{ item.groups }}"
+      loop: "{{ users }}"

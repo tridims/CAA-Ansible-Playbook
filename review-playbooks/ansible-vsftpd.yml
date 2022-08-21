@@ -1,0 +1,60 @@
+---
+- name: FTP Server is installed
+  hosts:
+    - ftpservers
+  vars_files:
+    - vars/defaults-template.yml
+    - vars/vars.yml
+
+  tasks:
+    - name: Packages are installed
+      yum:
+        name: "{{ vsftpd_package }}"
+        state: present
+
+    - name: Ensure service is running
+      service:
+        name: "{{ vsftpd_service }}"
+        state: started
+        enabled: true
+
+    - name: Configuration file in installed
+      template:
+        src: templates/vsftpd.conf.j2
+        dest: "{{ vsftpd_config_file }}"
+        owner: root
+        group: root
+        mode: 0600
+        setype: etc_t
+      notify: restart vsftpd
+
+    - name: firewalld is installed
+      yum:
+        name: firewalld
+        state: present
+
+    - name: firewalld is running and enabled
+      service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: FTP Port is open
+      firewalld:
+        service: ftp
+        permanent: true
+        state: enabled
+        immediate: yes
+
+    - name: FTP passive data port is open
+      firewalld:
+        port: 21000-21020/tcp
+        permanent: yes
+        state: enabled
+        immediate: true
+
+  handlers:
+    - name: restart vsftpd
+      service:
+        name: "{{ vsftpd_service }}"
+        state: restarted
