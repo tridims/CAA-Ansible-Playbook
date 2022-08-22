@@ -23,7 +23,6 @@
         dev: /dev/vdb1
         fstype: xfs
         force: yes
-      ignore_errors: yes
 
     - name: anon_root mount point exists
       file:
